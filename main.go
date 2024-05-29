@@ -27,7 +27,8 @@ func main() {
 	mux := http.NewServeMux()
 	// user
 	mux.HandleFunc("POST /user/{username}/{password}", U.AddUser) // (returns a list of baskets)
-	mux.HandleFunc("GET /user/{username}", U.GetUser)             // (returns a list of baskets)
+	mux.HandleFunc("GET  /user/login/{username}/{password}", U.Login)
+	mux.HandleFunc("GET /user/{username}", U.GetUser) // (returns a list of baskets)
 
 	//basket
 	mux.HandleFunc("POST /basket", B.AddBasket)

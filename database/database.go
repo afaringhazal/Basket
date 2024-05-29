@@ -20,6 +20,8 @@ func Connect() {
 
 	log.Println("Database connection established")
 	err = DB.AutoMigrate(&model.User{})
+	err = DB.AutoMigrate(&model.Basket{})
+
 	if err != nil {
 		log.Panicf("Failed to migrate the database: %v\n", err)
 	}
