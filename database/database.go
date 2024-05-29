@@ -13,7 +13,7 @@ var DB *gorm.DB
 
 func Connect() {
 	var err error
-	DB, err = gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
+	DB, err = gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
 	if err != nil {
 		log.Panicf("Failed to connect to database: %v\n", err)
 	}

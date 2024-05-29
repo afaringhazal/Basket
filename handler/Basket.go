@@ -39,13 +39,15 @@ func (h Result_3) AddBasket(w http.ResponseWriter, r *http.Request) {
 
 	if !validationUser(bas.Username) {
 		w.WriteHeader(http.StatusBadRequest)
+		output, _ := json.Marshal("username is not exist!")
+		w.Write(output)
 		return
 	}
 
 	id_ := GenerateId()
 
-	originalBas := model.Basket{
-		Id:         id_(),
+	createdBas := model.Basket{
+		Basketiden: id_(),
 		Username:   bas.Username,
 		Data:       bas.Data,
 		State:      bas.State,
@@ -53,9 +55,16 @@ func (h Result_3) AddBasket(w http.ResponseWriter, r *http.Request) {
 		Update_at:  time.Now(),
 	}
 
-	result := database.DB.Create(originalBas) // pass pointer of data to Create
+	result := database.DB.Create(createdBas) // pass pointer of data to Create
 	print(result)
-	w.WriteHeader(http.StatusNoContent)
+	if result.Error != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	json_basket, _ := json.Marshal(createdBas)
+	w.WriteHeader(http.StatusOK)
+	w.Write(json_basket)
+
 	return
 }
 
@@ -82,6 +91,7 @@ func (h Result_3) GetAllBaskets(w http.ResponseWriter, r *http.Request) {
 	result := database.DB.Where("Username = ?", username).Find(&baskets)
 	if result.Error != nil {
 		w.WriteHeader(http.StatusNoContent)
+		return
 	}
 	w.WriteHeader(http.StatusOK)
 	json_baskets, _ := json.Marshal(baskets)
@@ -111,10 +121,10 @@ func (h Result_3) UpdateBasket(w http.ResponseWriter, r *http.Request) {
 
 	username := bas.Username
 
-	basketID := bas.Id
+	basketID := bas.Basketiden
 
 	var existingBasket model.Basket
-	if err := database.DB.Where(" Username = ? AND id = ?", username, basketID).First(&existingBasket).Error; err != nil {
+	if err := database.DB.Where(" Username = ? AND Basketiden = ?", username, basketID).First(&existingBasket).Error; err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -125,6 +135,7 @@ func (h Result_3) UpdateBasket(w http.ResponseWriter, r *http.Request) {
 
 	existingBasket.Data = bas.Data
 	existingBasket.State = bas.State
+	existingBasket.Update_at = time.Now() // update
 
 	database.DB.Save(&existingBasket)
 	w.WriteHeader(http.StatusOK)
@@ -136,7 +147,7 @@ func (h Result_3) Delete(w http.ResponseWriter, r *http.Request) {
 	username := r.PathValue("username")
 	basketID := r.PathValue("id")
 	var basket model.Basket
-	if err := database.DB.Where("Username = ? AND id = ?", username, basketID).Delete(&basket).Error; err != nil {
+	if err := database.DB.Where("Username = ? AND Basketiden = ?", username, basketID).Delete(&basket).Error; err != nil {
 		w.WriteHeader(http.StatusNotFound)
 	}
 
