@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Basket/database"
 	"log/slog"
 	"net/http"
 	"os"
@@ -11,19 +12,31 @@ import (
 func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
 
-	h := handler.Result{
-		From:   "Golang",
-		Logger: logger.With("handler", "hello"),
+	U := handler.Result_2{
+		From:   "User",
+		Logger: logger.With("handler", "User"),
 	}
+
+	B := handler.Result_3{
+		From:   "Basket",
+		Logger: logger.With("handler", "Basket"),
+	}
+
+	database.Connect()
 
 	mux := http.NewServeMux()
-	print("gggggg")
+	// user
+	mux.HandleFunc("POST /user/{username}/{password}", U.AddUser) // (returns a list of baskets)
+	mux.HandleFunc("GET /user/{username}", U.GetUser)             // (returns a list of baskets)
 
-	mux.HandleFunc("GET /hello", h.Get)
-	mux.HandleFunc("POST /hello", h.Post)
-	mux.HandleFunc("GET /hello/{username}", h.User)
+	//basket
+	mux.HandleFunc("POST /basket", B.AddBasket)
+	mux.HandleFunc("GET /basket/{username}", B.GetAllBaskets)
+	mux.HandleFunc("PATCH /basket/{id}", B.UpdateBasket) //updates the given basket)
+	mux.HandleFunc("DELETE /basket/{id}", B.Delete)      //(deletes the given backset)
 
-	if err := http.ListenAndServe("0.0.0.0:1373", mux); err != nil {
+	if err := http.ListenAndServe("localhost:8080", mux); err != nil {
 		logger.Error("http server failed", "error", err.Error())
 	}
+
 }
