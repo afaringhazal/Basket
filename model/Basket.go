@@ -3,7 +3,7 @@ package model
 import "time"
 
 type Basket struct {
-	Basketiden int       `gorm:"not null"`
+	Basketiden uint32    `gorm:"not null"`
 	Username   string    `gorm:"not null"` // Link to the User model
 	Data       string    `gorm:"type:varchar(128)"`
 	State      bool      `gorm:"type: Boolean"`

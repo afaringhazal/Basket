@@ -4,6 +4,7 @@ import (
 	"Basket/database"
 	"Basket/model"
 	"encoding/json"
+	"github.com/google/uuid"
 	"log/slog"
 	"net/http"
 	"time"
@@ -44,10 +45,10 @@ func (h Result_3) AddBasket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id_ := GenerateId()
+	id_ := uuid.New().ID()
 
 	createdBas := model.Basket{
-		Basketiden: id_(),
+		Basketiden: id_,
 		Username:   bas.Username,
 		Data:       bas.Data,
 		State:      bas.State,
@@ -77,13 +78,13 @@ func validationUser(username string) bool {
 	return true
 }
 
-func GenerateId() func() int {
-	counter := 0
-	return func() int {
-		counter++
-		return counter
-	}
-}
+//	func GenerateId() func() int {
+//		counter := 0
+//		return func() int {
+//			counter++
+//			return counter
+//		}
+//	}
 func (h Result_3) GetAllBaskets(w http.ResponseWriter, r *http.Request) {
 	h.Logger.Info("get all basket!")
 	username := r.PathValue("username")
